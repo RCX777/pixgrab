@@ -9,27 +9,26 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
-        buildInputs' = with pkgs; [ gcc xorg.libX11 ];
+        buildInputs' = with pkgs; [ gcc gnumake xorg.libX11 ];
         devtools = with pkgs; [ gdb valgrind ];
 
-        warningFlags = "-Wall -Wextra -pedantic";
-        libs = "-lX11";
+        target = "pixgrab";
       in
       {
         devShells.default = pkgs.mkShell {
           buildInputs = buildInputs' ++ devtools;
         };
 
-        packages.default = pkgs.stdenv.mkDerivation rec {
-          name = "pixgrab";
+        packages.default = pkgs.stdenv.mkDerivation {
+          name = "${target}";
           src = self;
           buildInputs = buildInputs';
           buildPhase = ''
-            gcc -o ${name} ${name}.c ${libs} ${warningFlags}
+            make
           '';
           installPhase = ''
             mkdir -p $out/bin
-            cp ${name} $out/bin/${name}
+            cp ${target} $out/bin/${target}
           '';
         };
       }
